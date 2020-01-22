@@ -1,24 +1,35 @@
 class Car {
+  NeuralNetwork NN = new NeuralNetwork();
+
   PVector position =  new PVector();
   PVector velocity = new PVector(0, 0);
   PVector acceleration= new PVector(0, 0);
   PVector force;
-  PVector goal = new PVector(500, 55);
+  PVector goal = new PVector(90, 110);
+  //PVector goal = new PVector(500, 55);
   PVector FrontDistance = new PVector(0, 50);
   PVector LeftDistance = new PVector(-50, 0);
-  PVector RightDistance = new PVector(50, 0);
-
+  PVector RightDistance = new PVector(50, 0); 
+  
   float Heading = 0 + HALF_PI; 
   float startX = 90;
   float startY = 110;
   float c = 0.1;
   float normal = 2;
   float[] myInputs = {};
+  float DistToGoal;
+
+  int counter = 0;
 
   boolean rightTurn;
   boolean Alive = true;
 
-  Car() {
+  Car(NeuralNetwork NN_) {
+    NN = NN_; 
+    NN.addLayer(4, 5);         
+    NN.addLayer(5, 5);
+    NN.addLayer(5, 4);
+
     position.x = startX;
     position.y = startY;
   }
@@ -28,15 +39,16 @@ class Car {
     position.add(velocity);
     velocity.mult(0.983);
     velocity.limit(0.2);
-    show();
     SlowDown();
     dead();
     CarSensor();
+    seek();
+    DistToGoal = PVector.dist(goal, position);
   }
 
   void accelerate() {
     force = PVector.fromAngle(Heading);
-    force.setMag(0.15);
+    force.setMag(0.2);
     acceleration.add(force);
   }
 
@@ -65,6 +77,7 @@ class Car {
     }
   }
 
+
   void show() {
     pushMatrix();
     fill(255, 0, 0);
@@ -79,6 +92,7 @@ class Car {
     line(position.x, position.y, position.x + RightDistance.x, position.y);
   }
 
+
   void dead() {
     int Mid = DrivingField.get(floor(position.x), floor(position.y));
     int C1 = DrivingField.get(floor(position.x-10), floor(position.y-5));
@@ -91,8 +105,10 @@ class Car {
     float c2 = map(C2, -1, -3, 0, 255);
     float c3 = map(C3, -1, -3, 0, 255);
     float c4 = map(C4, -1, -3, 0, 255);
-
-    if (mid > 0 || c1 > 0 || c2 > 0 || c3 > 0 || c4 > 0 ) {
+    if (velocity.mag() < 0.00001) {
+      counter++;
+    }
+    if (mid > 0 || c1 > 0 || c2 > 0 || c3 > 0 || c4 > 0 || counter > 120 || time == 1200) {
       Alive = false;
     }
   }
@@ -128,17 +144,29 @@ class Car {
 
     float CarVelocity = velocity.mag();
     myInputs = (float[]) append(myInputs, CarVelocity);
-    float CarHeading = Heading;
-    myInputs = (float[]) append(myInputs, CarHeading);
-    
-    float DistToGoal = PVector.dist(position, goal);
-    myInputs = (float[]) append(myInputs, DistToGoal);
-   
     float FrontSensor = FrontDistance.y;
     myInputs = (float[]) append(myInputs, FrontSensor);
     float RightSensor = RightDistance.x;
     myInputs = (float[]) append(myInputs, RightSensor);
     float LeftSensor = LeftDistance.x;
     myInputs = (float[]) append(myInputs, LeftSensor);
+
+    NN.processInputsToOutputs(myInputs);                                          //once we've set the inputs we process them
+    //some neurons will be used as binary actuators, if they output > than 0.0 we will take it as a "yes"
+
+    if (NN.arrayOfOutputs[0] > 0.0) {
+      accelerate();
+    }
+    if (NN.arrayOfOutputs[1] > 0.0) {
+      turn();
+    } 
+    if (NN.arrayOfOutputs[2] > 0.0) {
+      rightTurn = false;
+      turn();
+    }
+    if (NN.arrayOfOutputs[1] > 0.0) {
+      rightTurn = true;
+      turn();
+    }
   }
 }
