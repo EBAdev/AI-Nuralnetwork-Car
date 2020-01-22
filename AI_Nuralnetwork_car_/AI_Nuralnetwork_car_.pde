@@ -1,22 +1,18 @@
-float startX = 90;
-float startY = 110;
-float startDirX = random(-0.5,0.5);
-float startDirY = random(1,2);
+World world;
+
 PImage DrivingField;
+
+int numE;
+
 void setup() {
-  DrivingField = loadImage("DrivingField.png");
+  DrivingField = loadImage("untitled.jpg");
   size(600, 600);
-  
+  numE = 1;
+  world = new World(numE);
 }
 
 void draw() {
   background(255);
   image(DrivingField, 0, 0);
-  rectMode(CENTER);
-  
-  rect(startX, startY+startDirY, 10, 30);
-  
-  startDirY++;
-  startDirX++;
-  
+    world.RunWorld();
 }
