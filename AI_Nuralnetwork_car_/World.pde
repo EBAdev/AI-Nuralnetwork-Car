@@ -24,6 +24,8 @@ class World {
       if (c.Alive == false) {
         carClones.add(c); 
         Cars.remove(i);
+      } else {
+       c.age++; 
       }
     }
   }
@@ -46,6 +48,8 @@ class World {
     for (int i = 0; i < carClones.size(); i++) {
       if (carClones.get(i).DistToGoal > record) {
         record = carClones.get(i).DistToGoal;
+        println(record);
+        println(carClones.get(i).position);
       }
     }
     return record;
