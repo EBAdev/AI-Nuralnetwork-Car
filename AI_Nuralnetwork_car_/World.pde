@@ -3,7 +3,7 @@ class World {
   ArrayList<Car> carClones;           //clones array we will use to recover stats from dead creatures
   ArrayList<Car> carsMatingPool;
   float mutationRate;
-  
+
   World(int numC) {
     Cars = new ArrayList <Car>();
     carClones = new ArrayList<Car>();
@@ -13,7 +13,6 @@ class World {
     for (int i = 0; i < numC; i++) {
       Cars.add(new Car(new NeuralNetwork()));
     }
-  
   }
 
   void RunWorld () {
@@ -24,8 +23,6 @@ class World {
       if (c.Alive == false) {
         carClones.add(c); 
         Cars.remove(i);
-      } else {
-       c.age++; 
       }
     }
   }
