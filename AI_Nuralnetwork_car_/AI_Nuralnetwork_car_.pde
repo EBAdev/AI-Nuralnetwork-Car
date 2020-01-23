@@ -12,7 +12,7 @@ int bestGen;
 void setup() {
   DrivingField = loadImage("untitled.jpg");
   size(600, 600);
-  numE = 50;
+  numE = 10;
   
   world = new World(numE);
 }
